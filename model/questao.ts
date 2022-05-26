@@ -1,4 +1,5 @@
 import RespostaModel from "./resposta";
+import { embaralhar } from "../functions/arrays";
 
 export default class QuestaoModel {
     #id: number
@@ -6,7 +7,7 @@ export default class QuestaoModel {
     #respostas: RespostaModel[]
     #acertou: boolean
 
-    constructor(id: number, enunciado: string, respostas: any[], acertou: boolean) {
+    constructor(id: number, enunciado: string, respostas: any[], acertou = false) {
         this.#id = id
         this.#enunciado = enunciado
         this.#respostas = respostas
@@ -35,5 +36,35 @@ export default class QuestaoModel {
         }
 
         return false
+    }
+
+    responderCom(indice: number): QuestaoModel{
+        const acertou = this.#respostas[indice]?.certa
+        const respostas = this.#respostas.map((resposta, i) => {
+            const respostaSelecioonada = indice === i
+            const deveRevelar = respostaSelecioonada || resposta.certa
+            return deveRevelar ? resposta.revelar() : resposta
+        })
+        return new QuestaoModel(this.id, this.enunciado, respostas, acertou)
+    }
+
+    embaralharRespostas(): QuestaoModel {
+        let respostasEmbaralhadas = embaralhar(this.#respostas)
+        return new QuestaoModel(this.#id, this.#enunciado, respostasEmbaralhadas, this.#acertou)
+    }
+
+    static criarUsandoObjeto(obj: QuestaoModel): QuestaoModel {
+        const respostas = obj.respostas.map(resp => RespostaModel.criarUsandoObjeto(resp))
+        return new QuestaoModel(obj.id, obj.enunciado, respostas, obj.acertou)
+    }
+
+    paraObjeto() {
+        return {
+            id: this.#id,
+            enunciado: this.#enunciado,
+            respondida: this.respondida,
+            acertou: this.#acertou,
+            respostas: this.#respostas.map(resp => resp.paraObjeto())
+        }
     }
 }
