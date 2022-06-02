@@ -1,5 +1,5 @@
-import RespostaModel from "./resposta";
-import { embaralhar } from "../functions/arrays";
+import { embaralhar } from "../functions/arrays"
+import RespostaModel from "./resposta"
 
 export default class QuestaoModel {
     #id: number
@@ -7,7 +7,7 @@ export default class QuestaoModel {
     #respostas: RespostaModel[]
     #acertou: boolean
 
-    constructor(id: number, enunciado: string, respostas: any[], acertou = false) {
+    constructor(id: number, enunciado: string, respostas: RespostaModel[], acertou = false) {
         this.#id = id
         this.#enunciado = enunciado
         this.#respostas = respostas
@@ -23,26 +23,29 @@ export default class QuestaoModel {
     }
 
     get respostas() {
-        return this.#id
+        return this.#respostas
     }
 
     get acertou() {
-        return this.#id
+        return this.#acertou
     }
-    
+
+    get naoRespondida() {
+        return !this.respondida
+    }
+
     get respondida() {
         for (let resposta of this.#respostas) {
             if (resposta.revelada) return true
         }
-
         return false
     }
 
-    responderCom(indice: number): QuestaoModel{
+    responderCom(indice: number): QuestaoModel {
         const acertou = this.#respostas[indice]?.certa
         const respostas = this.#respostas.map((resposta, i) => {
-            const respostaSelecioonada = indice === i
-            const deveRevelar = respostaSelecioonada || resposta.certa
+            const respostaSelecionada = indice === i
+            const deveRevelar = respostaSelecionada || resposta.certa
             return deveRevelar ? resposta.revelar() : resposta
         })
         return new QuestaoModel(this.id, this.enunciado, respostas, acertou)
@@ -64,7 +67,7 @@ export default class QuestaoModel {
             enunciado: this.#enunciado,
             respondida: this.respondida,
             acertou: this.#acertou,
-            respostas: this.#respostas.map(resp => resp.paraObjeto())
+            respostas: this.#respostas.map(resp => resp.paraObjeto()),
         }
     }
 }
